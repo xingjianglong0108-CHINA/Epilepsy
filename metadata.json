@@ -1,0 +1,5 @@
+{
+  "name": "LZRYEK 癫痫管理随访系统",
+  "description": "一个基于国际癫痫指南（ILAE/NICE）构建的专业癫痫病人管理与随访系统，支持信息录入、多维度查询及智能随访提醒功能。",
+  "requestFramePermissions": []
+}
