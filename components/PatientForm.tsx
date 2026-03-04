@@ -21,6 +21,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
   });
 
   const [otherFollowUpText, setOtherFollowUpText] = useState('');
+  const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => { 
     if (initialData) {
@@ -68,6 +69,11 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!showConfirm) {
+      setShowConfirm(true);
+      return;
+    }
+    
     let finalItems = [...(formData.followUpConfig?.items || [])].filter(i => i !== '其他');
     if (formData.followUpConfig?.items.includes('其他') && otherFollowUpText.trim()) finalItems.push(otherFollowUpText.trim());
     
@@ -100,22 +106,24 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
   };
 
   return (
-    <form onSubmit={handleSubmit} className="glass rounded-[2.5rem] p-8 space-y-10 animate-fade-in overflow-y-auto max-h-[85vh] shadow-2xl border-white/40">
-      <div className="flex justify-between items-center pb-6 border-b border-white/30">
-        <div>
-           <h2 className="text-4xl font-black text-gray-900 tracking-tight">
-             {isNewVisit ? '录入新诊记录' : (initialData ? '修改患儿档案资料' : '新建患儿诊疗档案')}
-           </h2>
-           <p className="text-violet-500 text-base font-black uppercase tracking-[0.2em] mt-1">
-             {isNewVisit ? 'New Clinical Visit Record' : 'Patient Information Management'}
-           </p>
+    <form onSubmit={handleSubmit} className="glass rounded-[2.5rem] flex flex-col animate-fade-in max-h-[85vh] shadow-2xl border-white/40 overflow-hidden">
+      <div className="p-8 pb-6 border-b border-white/30 shrink-0">
+        <div className="flex justify-between items-center">
+          <div>
+             <h2 className="text-4xl font-black text-gray-900 tracking-tight">
+               {isNewVisit ? '录入新诊记录' : (initialData ? '修改患儿档案资料' : '新建患儿诊疗档案')}
+             </h2>
+             <p className="text-violet-500 text-base font-black uppercase tracking-[0.2em] mt-1">
+               {isNewVisit ? 'New Clinical Visit Record' : 'Patient Information Management'}
+             </p>
+          </div>
+          <button type="button" onClick={onCancel} className="p-3 bg-black/5 hover:bg-black/10 rounded-full transition-colors">
+            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
         </div>
-        <button type="button" onClick={onCancel} className="p-3 bg-black/5 hover:bg-black/10 rounded-full transition-colors">
-          <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
-        </button>
       </div>
 
-      <div className="space-y-12">
+      <div className="p-8 space-y-12 overflow-y-auto flex-1">
         <section>
           <div className="flex items-center gap-2 mb-6 ml-1">
              <div className="w-2 h-8 bg-violet-500 rounded-full"></div>
@@ -272,12 +280,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
         </section>
       </div>
 
-      <div className="flex gap-6 pt-10 sticky bottom-0 bg-white/40 backdrop-blur-xl -mx-8 px-8 pb-6 z-20 border-t border-white/20">
-        <button type="submit" className="flex-1 bg-violet-600 text-white font-black py-6 rounded-3xl shadow-2xl hover:bg-violet-700 transition-all text-xl active:scale-95">
-          {isNewVisit ? '完成并确认生成本次就诊记录' : (initialData ? '确认保存档案基础修改' : '确认建立长期诊疗档案')}
+      <div className="shrink-0 flex gap-6 p-8 bg-white/40 backdrop-blur-xl border-t border-white/20">
+        <button type="submit" className={`flex-1 text-white font-black py-6 rounded-3xl shadow-2xl transition-all text-xl active:scale-95 ${showConfirm ? 'bg-emerald-500 hover:bg-emerald-600 animate-pulse' : 'bg-violet-600 hover:bg-violet-700'}`}>
+          {showConfirm ? '确认' : (isNewVisit ? '完成并确认生成本次就诊记录' : (initialData ? '确认保存档案基础修改' : '确认建立长期诊疗档案'))}
         </button>
-        <button type="button" onClick={onCancel} className="px-14 py-6 bg-white/80 text-gray-700 font-bold rounded-3xl hover:bg-white transition-all text-xl shadow-lg">
-          取消操作
+        <button type="button" onClick={() => {
+          if (showConfirm) setShowConfirm(false);
+          else onCancel();
+        }} className="px-14 py-6 bg-white/80 text-gray-700 font-bold rounded-3xl hover:bg-white transition-all text-xl shadow-lg">
+          {showConfirm ? '返回修改' : '取消操作'}
         </button>
       </div>
     </form>
