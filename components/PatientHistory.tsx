@@ -24,10 +24,14 @@ const PatientHistory: React.FC<PatientHistoryProps> = ({ patient, onBack }) => {
         </div>
       </div>
 
-      <div className="glass rounded-[3rem] p-10 border-white/40 grid grid-cols-1 md:grid-cols-2 gap-8 text-lg">
+      <div className="glass rounded-[3rem] p-10 border-white/40 grid grid-cols-1 md:grid-cols-3 gap-8 text-lg">
         <div className="flex flex-col gap-2 p-6 bg-white/30 rounded-3xl">
            <span className="font-black text-gray-400 uppercase text-base tracking-[0.2em]">家族病史:</span>
            <span className="text-gray-800 font-bold">{patient.familyHistory || '未详细记录'}</span>
+        </div>
+        <div className="flex flex-col gap-2 p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100">
+           <span className="font-black text-emerald-600 uppercase text-base tracking-[0.2em]">病史录入:</span>
+           <span className="text-emerald-800 font-bold whitespace-pre-line">{patient.medicalHistory || '暂无病史资料'}</span>
         </div>
         <div className="flex flex-col gap-2 p-6 bg-fuchsia-50/50 rounded-3xl border border-fuchsia-100">
            <span className="font-black text-fuchsia-400 uppercase text-base tracking-[0.2em]">药物/食物过敏史:</span>

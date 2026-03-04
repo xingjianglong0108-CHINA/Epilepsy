@@ -12,7 +12,7 @@ interface PatientFormProps {
 
 const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = false, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState<Partial<Patient>>({
-    name: '', gender: Gender.MALE, birthday: '', age: 0, allergies: '', familyHistory: '', idCard: '', phone: '',
+    name: '', gender: Gender.MALE, birthday: '', age: 0, allergies: '', familyHistory: '', medicalHistory: '', idCard: '', phone: '',
     clinicalSummary: { syndrome: '', seizureType: '', eeg: '', mri: '', genetic: '', biochemical: '', other: '' },
     diagnosis: '', diagnosisDate: new Date().toISOString().split('T')[0],
     medications: [{ name: '', usage: '', dosage: '', startDate: new Date().toISOString().split('T')[0], endDate: '' }],
@@ -156,6 +156,10 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
             <div className="md:col-span-2 space-y-2">
               <label className="text-base font-black text-violet-600 uppercase tracking-widest px-1">家族史</label>
               <input name="familyHistory" value={formData.familyHistory} onChange={handleInputChange} disabled={isNewVisit} className={`w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none font-semibold text-lg ${isNewVisit ? 'opacity-50' : ''}`} placeholder="家族遗传或癫痫史" />
+            </div>
+            <div className="md:col-span-2 lg:col-span-4 xl:col-span-4 space-y-2">
+              <label className="text-base font-black text-emerald-600 uppercase tracking-widest px-1">病史录入</label>
+              <textarea name="medicalHistory" value={formData.medicalHistory || ''} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none font-semibold text-lg min-h-[100px]" placeholder="在此简单录入病史资料（建档或复诊时均可编辑）" />
             </div>
           </div>
         </section>

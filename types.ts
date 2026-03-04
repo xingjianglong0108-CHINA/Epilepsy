@@ -55,6 +55,7 @@ export interface Patient {
   age: number;      
   allergies: string;
   familyHistory: string; // 家族史
+  medicalHistory?: string; // 病史录入
   idCard: string;
   phone: string;
   clinicalSummary: VisitRecord['clinicalSummary'];
