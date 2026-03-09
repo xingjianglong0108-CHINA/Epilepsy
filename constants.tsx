@@ -21,9 +21,40 @@ export const FOLLOW_UP_ITEMS = [
   '其他'
 ];
 
+export const USAGE_OPTIONS = [
+  'qd (每日1次)',
+  'bid (每日2次)',
+  'tid (每日3次)',
+  'qid (每日4次)',
+  'qn (每晚1次)',
+  'qod (隔日1次)',
+  'prn (必要时)'
+];
+
+export const DOSAGE_UNITS = [
+  'g',
+  'mg',
+  'ml',
+  '片',
+  '粒',
+  '滴'
+];
+
 export const SEIZURE_TYPES = [
   '局灶性发作 (Focal)',
   '全面性发作 (Generalized)',
   '局灶继发全面性发作',
   '未分类发作'
+];
+
+export const SYNDROME_OPTIONS = [
+  'West综合征',
+  'Dravet综合征',
+  'Lennox-Gastaut综合征',
+  '儿童失神癫痫',
+  '伴中央颞区棘波的儿童良性癫痫 (BECTS)',
+  '婴儿痉挛症',
+  '结节性硬化症',
+  '大田原综合征',
+  'Landau-Kleffner综合征'
 ];

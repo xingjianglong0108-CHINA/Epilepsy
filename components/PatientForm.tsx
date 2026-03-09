@@ -1,7 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { Patient, Gender, Medication, VisitRecord } from '../types';
-import { COMMON_MEDICATIONS, FOLLOW_UP_ITEMS } from '../constants';
+import { COMMON_MEDICATIONS, FOLLOW_UP_ITEMS, USAGE_OPTIONS, DOSAGE_UNITS, SYNDROME_OPTIONS } from '../constants';
+
+const getDosageParts = (dosage: string) => {
+  if (!dosage) return { value: '', unit: 'mg' };
+  const match = dosage.match(/^([\d.]+)(.*)$/);
+  if (match) {
+    return { value: match[1], unit: match[2].trim() || 'mg' };
+  }
+  return { value: dosage, unit: '' };
+};
 
 interface PatientFormProps {
   initialData?: Patient;
@@ -36,9 +45,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
       const birth = new Date(formData.birthday);
       const today = new Date();
       let age = today.getFullYear() - birth.getFullYear();
-      const m = today.getMonth() - birth.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-      setFormData(prev => ({ ...prev, age: Math.max(0, age) }));
+      let m = today.getMonth() - birth.getMonth();
+      if (today.getDate() < birth.getDate()) {
+        m--;
+      }
+      if (m < 0) {
+        age--;
+        m += 12;
+      }
+      setFormData(prev => ({ ...prev, age: Math.max(0, age), ageMonth: Math.max(0, m) }));
     }
   }, [formData.birthday]);
 
@@ -77,6 +92,13 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
     let finalItems = [...(formData.followUpConfig?.items || [])].filter(i => i !== '其他');
     if (formData.followUpConfig?.items.includes('其他') && otherFollowUpText.trim()) finalItems.push(otherFollowUpText.trim());
     
+    const generatedDiagnosis = [
+      formData.clinicalSummary?.seizureType ? `${formData.clinicalSummary.seizureType}癫痫` : '癫痫',
+      formData.clinicalSummary?.syndrome,
+      formData.clinicalSummary?.etiology,
+      formData.clinicalSummary?.comorbidity
+    ].filter(Boolean).join(' ');
+
     const currentFollowUpConfig = { ...formData.followUpConfig!, items: finalItems };
     let updatedHistory = [...(formData.visitHistory || [])];
     
@@ -93,6 +115,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
 
     onSubmit({ 
       ...(formData as Patient), 
+      diagnosis: generatedDiagnosis,
       followUpConfig: currentFollowUpConfig, 
       visitHistory: updatedHistory,
       id: initialData?.id || crypto.randomUUID(), 
@@ -125,9 +148,14 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
 
       <div className="p-8 space-y-12 overflow-y-auto flex-1">
         <section>
-          <div className="flex items-center gap-2 mb-6 ml-1">
-             <div className="w-2 h-8 bg-violet-500 rounded-full"></div>
-             <h3 className="text-2xl font-bold">患儿基本信息 {isNewVisit && '(只读参考)'}</h3>
+          <div className="flex items-center justify-between mb-6 ml-1">
+            <div className="flex items-center gap-2">
+               <div className="w-2 h-8 bg-violet-500 rounded-full"></div>
+               <h3 className="text-2xl font-bold">患儿基本信息 {isNewVisit && '(只读参考)'}</h3>
+            </div>
+            <button type="submit" className={`px-8 py-3 rounded-2xl font-bold text-white shadow-lg transition-all text-lg active:scale-95 ${showConfirm ? 'bg-emerald-500 hover:bg-emerald-600 animate-pulse' : 'bg-violet-600 hover:bg-violet-700'}`}>
+              {showConfirm ? '确定保存' : '保存'}
+            </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-white/40 p-8 rounded-[2rem] border border-white/50 shadow-inner">
             <div className="space-y-2">
@@ -147,7 +175,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
             </div>
             <div className="space-y-2">
               <label className="text-base font-black text-gray-400 uppercase tracking-widest px-1">计算年龄</label>
-              <div className="w-full px-5 py-4 bg-gray-100/50 text-gray-400 rounded-2xl border-0 ring-1 ring-black/5 font-bold text-lg">{formData.age} 岁</div>
+              <div className="w-full px-5 py-4 bg-gray-100/50 text-gray-400 rounded-2xl border-0 ring-1 ring-black/5 font-bold text-lg">
+                {formData.age} 岁 {formData.ageMonth !== undefined ? `${formData.ageMonth} 个月` : ''}
+              </div>
             </div>
             <div className="md:col-span-2 space-y-2">
               <label className="text-base font-black text-fuchsia-600 uppercase tracking-widest px-1">过敏史</label>
@@ -186,11 +216,53 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
                   </div>
                   <div className="lg:col-span-2 space-y-2">
                     <label className="text-base font-black text-gray-400 uppercase tracking-widest ml-1">用法</label>
-                    <input value={med.usage} onChange={(e) => handleMedicationChange(idx, 'usage', e.target.value)} className="w-full px-4 py-3.5 bg-white rounded-xl outline-none text-lg font-semibold border-0 ring-1 ring-black/5" placeholder="如: bid" />
+                    <select 
+                      value={USAGE_OPTIONS.includes(med.usage) ? med.usage : (med.usage === '' ? '' : 'OTHER')} 
+                      onChange={(e) => handleMedicationChange(idx, 'usage', e.target.value === 'OTHER' ? ' ' : e.target.value)} 
+                      className="w-full px-4 py-3.5 bg-white rounded-xl outline-none text-lg font-bold border-0 ring-1 ring-black/5"
+                    >
+                      <option value="">选择用法...</option>
+                      {USAGE_OPTIONS.map(u => <option key={u} value={u}>{u}</option>)}
+                      <option value="OTHER">其他...</option>
+                    </select>
+                    {(!USAGE_OPTIONS.includes(med.usage) && med.usage !== '') && (
+                      <input 
+                        value={med.usage === ' ' ? '' : med.usage} 
+                        onChange={(e) => handleMedicationChange(idx, 'usage', e.target.value)} 
+                        className="w-full px-4 py-3.5 mt-2 bg-violet-50 border-2 border-violet-200 rounded-xl outline-none text-lg font-black" 
+                        placeholder="输入用法" 
+                      />
+                    )}
                   </div>
                   <div className="lg:col-span-2 space-y-2">
                     <label className="text-base font-black text-gray-400 uppercase tracking-widest ml-1">用量</label>
-                    <input value={med.dosage} onChange={(e) => handleMedicationChange(idx, 'dosage', e.target.value)} className="w-full px-4 py-3.5 bg-white rounded-xl outline-none text-lg font-semibold border-0 ring-1 ring-black/5" placeholder="如: 0.25g" />
+                    <div className="flex gap-2">
+                      <input 
+                        value={getDosageParts(med.dosage).value} 
+                        onChange={(e) => handleMedicationChange(idx, 'dosage', e.target.value + getDosageParts(med.dosage).unit)} 
+                        className="w-1/2 px-4 py-3.5 bg-white rounded-xl outline-none text-lg font-semibold border-0 ring-1 ring-black/5" 
+                        placeholder="如: 0.25" 
+                      />
+                      <select 
+                        value={DOSAGE_UNITS.includes(getDosageParts(med.dosage).unit) ? getDosageParts(med.dosage).unit : 'OTHER'} 
+                        onChange={(e) => {
+                          const newUnit = e.target.value === 'OTHER' ? ' ' : e.target.value;
+                          handleMedicationChange(idx, 'dosage', getDosageParts(med.dosage).value + newUnit);
+                        }} 
+                        className="w-1/2 px-2 py-3.5 bg-white rounded-xl outline-none text-lg font-semibold border-0 ring-1 ring-black/5"
+                      >
+                        {DOSAGE_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
+                        <option value="OTHER">其他</option>
+                      </select>
+                    </div>
+                    {(!DOSAGE_UNITS.includes(getDosageParts(med.dosage).unit) && getDosageParts(med.dosage).unit !== '') && (
+                      <input 
+                        value={getDosageParts(med.dosage).unit === ' ' ? '' : getDosageParts(med.dosage).unit} 
+                        onChange={(e) => handleMedicationChange(idx, 'dosage', getDosageParts(med.dosage).value + e.target.value)} 
+                        className="w-full px-4 py-3.5 mt-2 bg-violet-50 border-2 border-violet-200 rounded-xl outline-none text-lg font-black" 
+                        placeholder="输入单位" 
+                      />
+                    )}
                   </div>
                   <div className="lg:col-span-2 space-y-2">
                     <label className="text-base font-black text-violet-600 uppercase tracking-widest ml-1">起始日期</label>
@@ -220,14 +292,38 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
              <h3 className="text-2xl font-bold">{isNewVisit ? '本次就诊临床评估资料' : '临床资料'}</h3>
           </div>
           <div className="glass-dark p-8 rounded-[2.5rem] border-0 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <label className="text-base font-black text-gray-500 uppercase tracking-widest">临床诊断结论</label>
-                <input name="diagnosis" value={formData.diagnosis} onChange={handleInputChange} className="w-full px-6 py-4 bg-white border-2 border-sky-400/30 rounded-2xl outline-none font-black text-lg text-sky-800" placeholder="如: 局灶性癫痫" required />
-              </div>
-              <div className="space-y-2">
-                <label className="text-base font-black text-gray-500 uppercase tracking-widest">癫痫综合征分类</label>
-                <input name="clinicalSummary.syndrome" value={formData.clinicalSummary?.syndrome} onChange={handleInputChange} className="w-full px-6 py-4 bg-white border-2 border-violet-500/30 rounded-2xl outline-none font-black text-lg text-violet-800" placeholder="如: West 综合征" />
+            <div className="space-y-4 bg-white/40 p-6 rounded-3xl border border-white/50">
+              <label className="text-base font-black text-gray-500 uppercase tracking-widest">临床诊断</label>
+              <div className="flex flex-wrap items-center gap-3">
+                <input name="clinicalSummary.seizureType" value={formData.clinicalSummary?.seizureType || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-sky-400/30 rounded-xl outline-none font-black text-lg text-sky-800" placeholder="发作形式" />
+                <span className="text-xl font-black text-gray-800">癫痫</span>
+                
+                <div className="flex-1 min-w-[200px] relative">
+                  <select 
+                    value={SYNDROME_OPTIONS.includes(formData.clinicalSummary?.syndrome || '') ? formData.clinicalSummary?.syndrome : (formData.clinicalSummary?.syndrome === '' ? '' : 'OTHER')}
+                    onChange={(e) => {
+                      const val = e.target.value === 'OTHER' ? ' ' : e.target.value;
+                      handleInputChange({ target: { name: 'clinicalSummary.syndrome', value: val } } as any);
+                    }}
+                    className="w-full px-4 py-3 bg-white border-2 border-violet-500/30 rounded-xl outline-none font-black text-lg text-violet-800 appearance-none"
+                  >
+                    <option value="">选择癫痫综合征分类...</option>
+                    {SYNDROME_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    <option value="OTHER">其他...</option>
+                  </select>
+                </div>
+                {(!SYNDROME_OPTIONS.includes(formData.clinicalSummary?.syndrome || '') && formData.clinicalSummary?.syndrome !== '') && (
+                  <input 
+                    name="clinicalSummary.syndrome" 
+                    value={formData.clinicalSummary?.syndrome === ' ' ? '' : formData.clinicalSummary?.syndrome} 
+                    onChange={handleInputChange} 
+                    className="flex-1 min-w-[200px] px-4 py-3 bg-violet-50 border-2 border-violet-300 rounded-xl outline-none font-black text-lg text-violet-800" 
+                    placeholder="手动输入综合征分类" 
+                  />
+                )}
+                
+                <input name="clinicalSummary.etiology" value={formData.clinicalSummary?.etiology || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-fuchsia-400/30 rounded-xl outline-none font-black text-lg text-fuchsia-800" placeholder="病因诊断" />
+                <input name="clinicalSummary.comorbidity" value={formData.clinicalSummary?.comorbidity || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-emerald-400/30 rounded-xl outline-none font-black text-lg text-emerald-800" placeholder="共患病诊断" />
               </div>
             </div>
             
@@ -282,18 +378,6 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
               </div>
            </div>
         </section>
-      </div>
-
-      <div className="shrink-0 flex gap-6 p-8 bg-white/40 backdrop-blur-xl border-t border-white/20">
-        <button type="submit" className={`flex-1 text-white font-black py-6 rounded-3xl shadow-2xl transition-all text-xl active:scale-95 ${showConfirm ? 'bg-emerald-500 hover:bg-emerald-600 animate-pulse' : 'bg-violet-600 hover:bg-violet-700'}`}>
-          {showConfirm ? '确认' : (isNewVisit ? '完成并确认生成本次就诊记录' : (initialData ? '确认保存档案基础修改' : '确认建立长期诊疗档案'))}
-        </button>
-        <button type="button" onClick={() => {
-          if (showConfirm) setShowConfirm(false);
-          else onCancel();
-        }} className="px-14 py-6 bg-white/80 text-gray-700 font-bold rounded-3xl hover:bg-white transition-all text-xl shadow-lg">
-          {showConfirm ? '返回修改' : '取消操作'}
-        </button>
       </div>
     </form>
   );

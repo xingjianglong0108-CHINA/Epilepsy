@@ -32,6 +32,8 @@ export interface VisitRecord {
   clinicalSummary: {
     syndrome: string;
     seizureType: string;
+    etiology?: string; // 病因诊断
+    comorbidity?: string; // 共患病诊断
     eeg: string;
     mri: string;
     genetic: string;
@@ -53,6 +55,7 @@ export interface Patient {
   gender: Gender;
   birthday: string; 
   age: number;      
+  ageMonth?: number; // 新增：月龄
   allergies: string;
   familyHistory: string; // 家族史
   medicalHistory?: string; // 病史录入

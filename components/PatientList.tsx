@@ -134,7 +134,7 @@ const PatientList: React.FC<PatientListProps> = ({ patients, onSelect, onNewVisi
                   <tr key={p.id} className="hover:bg-white/60 transition-colors group">
                     <td className="px-8 py-8 cursor-pointer" onClick={() => onSelect(p)}>
                       <div className="font-black text-gray-900 text-xl">{p.name}</div>
-                      <div className="text-base text-gray-500 font-bold">{p.gender} · {p.age}岁</div>
+                      <div className="text-base text-gray-500 font-bold">{p.gender} · {p.age}岁{p.ageMonth !== undefined ? ` ${p.ageMonth}个月` : ''}</div>
                       <div className="mt-2 text-base text-violet-600 font-black flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         查看就诊史 ({p.visitHistory.length} 次记录)

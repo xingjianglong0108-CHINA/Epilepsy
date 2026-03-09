@@ -19,7 +19,7 @@ const PatientHistory: React.FC<PatientHistoryProps> = ({ patient, onBack }) => {
           </button>
           <div>
             <h2 className="text-4xl font-black text-gray-900 tracking-tight">全程诊疗就诊史记录</h2>
-            <p className="text-violet-600 text-lg font-bold uppercase tracking-widest mt-1">Timeline · {patient.name} · {patient.gender} · {patient.age}岁</p>
+            <p className="text-violet-600 text-lg font-bold uppercase tracking-widest mt-1">Timeline · {patient.name} · {patient.gender} · {patient.age}岁{patient.ageMonth !== undefined ? ` ${patient.ageMonth}个月` : ''}</p>
           </div>
         </div>
       </div>
