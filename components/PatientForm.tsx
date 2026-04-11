@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Patient, Gender, Medication, VisitRecord } from '../types';
-import { COMMON_MEDICATIONS, FOLLOW_UP_ITEMS, USAGE_OPTIONS, DOSAGE_UNITS, SYNDROME_OPTIONS } from '../constants';
+import { COMMON_MEDICATIONS, FOLLOW_UP_ITEMS, USAGE_OPTIONS, DOSAGE_UNITS, SYNDROME_OPTIONS, SEIZURE_TYPES } from '../constants';
 
 const getDosageParts = (dosage: string) => {
   if (!dosage) return { value: '', unit: 'mg' };
@@ -295,7 +295,29 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
             <div className="space-y-4 bg-white/40 p-6 rounded-3xl border border-white/50">
               <label className="text-base font-black text-gray-500 uppercase tracking-widest">临床诊断</label>
               <div className="flex flex-wrap items-center gap-3">
-                <input name="clinicalSummary.seizureType" value={formData.clinicalSummary?.seizureType || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-sky-400/30 rounded-xl outline-none font-black text-lg text-sky-800" placeholder="发作形式" />
+                <div className="flex-1 min-w-[200px] relative">
+                  <select 
+                    value={SEIZURE_TYPES.includes(formData.clinicalSummary?.seizureType || '') ? formData.clinicalSummary?.seizureType : (formData.clinicalSummary?.seizureType === '' ? '' : 'OTHER')}
+                    onChange={(e) => {
+                      const val = e.target.value === 'OTHER' ? ' ' : e.target.value;
+                      handleInputChange({ target: { name: 'clinicalSummary.seizureType', value: val } } as any);
+                    }}
+                    className="w-full px-4 py-3 bg-white border-2 border-sky-400/30 rounded-xl outline-none font-black text-lg text-sky-800 appearance-none"
+                  >
+                    <option value="">选择发作形式...</option>
+                    {SEIZURE_TYPES.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    <option value="OTHER">其他...</option>
+                  </select>
+                </div>
+                {(!SEIZURE_TYPES.includes(formData.clinicalSummary?.seizureType || '') && formData.clinicalSummary?.seizureType !== '') && (
+                  <input 
+                    name="clinicalSummary.seizureType" 
+                    value={formData.clinicalSummary?.seizureType === ' ' ? '' : formData.clinicalSummary?.seizureType} 
+                    onChange={handleInputChange} 
+                    className="flex-1 min-w-[150px] px-4 py-3 bg-sky-50 border-2 border-sky-300 rounded-xl outline-none font-black text-lg text-sky-800" 
+                    placeholder="手动输入发作形式" 
+                  />
+                )}
                 <span className="text-xl font-black text-gray-800">癫痫</span>
                 
                 <div className="flex-1 min-w-[200px] relative">
