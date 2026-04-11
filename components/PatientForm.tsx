@@ -148,14 +148,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
 
       <div className="p-8 space-y-12 overflow-y-auto flex-1">
         <section>
-          <div className="flex items-center justify-between mb-6 ml-1">
-            <div className="flex items-center gap-2">
-               <div className="w-2 h-8 bg-violet-500 rounded-full"></div>
-               <h3 className="text-2xl font-bold">患儿基本信息 {isNewVisit && '(只读参考)'}</h3>
-            </div>
-            <button type="submit" className={`px-8 py-3 rounded-2xl font-bold text-white shadow-lg transition-all text-lg active:scale-95 ${showConfirm ? 'bg-emerald-500 hover:bg-emerald-600 animate-pulse' : 'bg-violet-600 hover:bg-violet-700'}`}>
-              {showConfirm ? '确定保存' : '保存'}
-            </button>
+          <div className="flex items-center gap-2 mb-6 ml-1">
+             <div className="w-2 h-8 bg-violet-500 rounded-full"></div>
+             <h3 className="text-2xl font-bold">患儿基本信息 {isNewVisit && '(只读参考)'}</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-white/40 p-8 rounded-[2rem] border border-white/50 shadow-inner">
             <div className="space-y-2">
@@ -400,6 +395,11 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
               </div>
            </div>
         </section>
+      </div>
+      <div className="p-8 pt-4 border-t border-white/30 shrink-0 bg-white/30 backdrop-blur-md">
+        <button type="submit" className={`w-full py-5 rounded-3xl font-black text-white shadow-2xl transition-all text-xl active:scale-95 ${showConfirm ? 'bg-emerald-500 hover:bg-emerald-600 animate-pulse' : 'bg-violet-600 hover:bg-violet-700'}`}>
+          {showConfirm ? '确定保存' : '保存'}
+        </button>
       </div>
     </form>
   );
