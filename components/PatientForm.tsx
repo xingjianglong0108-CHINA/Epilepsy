@@ -193,6 +193,92 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
 
         <section>
           <div className="flex items-center gap-2 mb-6 ml-1">
+             <div className="w-2 h-8 bg-sky-400 rounded-full"></div>
+             <h3 className="text-2xl font-bold">{isNewVisit ? '本次就诊临床评估资料' : '临床资料'}</h3>
+          </div>
+          <div className="glass-dark p-8 rounded-[2.5rem] border-0 space-y-8">
+            <div className="space-y-4 bg-white/40 p-6 rounded-3xl border border-white/50">
+              <label className="text-base font-black text-gray-500 uppercase tracking-widest">临床诊断</label>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex-1 min-w-[200px] relative">
+                  <select 
+                    value={SEIZURE_TYPES.includes(formData.clinicalSummary?.seizureType || '') ? formData.clinicalSummary?.seizureType : (formData.clinicalSummary?.seizureType === '' ? '' : 'OTHER')}
+                    onChange={(e) => {
+                      const val = e.target.value === 'OTHER' ? ' ' : e.target.value;
+                      handleInputChange({ target: { name: 'clinicalSummary.seizureType', value: val } } as any);
+                    }}
+                    className="w-full px-4 py-3 bg-white border-2 border-sky-400/30 rounded-xl outline-none font-black text-lg text-sky-800 appearance-none"
+                  >
+                    <option value="">选择发作形式...</option>
+                    {SEIZURE_TYPES.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    <option value="OTHER">其他...</option>
+                  </select>
+                </div>
+                {(!SEIZURE_TYPES.includes(formData.clinicalSummary?.seizureType || '') && formData.clinicalSummary?.seizureType !== '') && (
+                  <input 
+                    name="clinicalSummary.seizureType" 
+                    value={formData.clinicalSummary?.seizureType === ' ' ? '' : formData.clinicalSummary?.seizureType} 
+                    onChange={handleInputChange} 
+                    className="flex-1 min-w-[150px] px-4 py-3 bg-sky-50 border-2 border-sky-300 rounded-xl outline-none font-black text-lg text-sky-800" 
+                    placeholder="手动输入发作形式" 
+                  />
+                )}
+                <span className="text-xl font-black text-gray-800">癫痫</span>
+                
+                <div className="flex-1 min-w-[200px] relative">
+                  <select 
+                    value={SYNDROME_OPTIONS.includes(formData.clinicalSummary?.syndrome || '') ? formData.clinicalSummary?.syndrome : (formData.clinicalSummary?.syndrome === '' ? '' : 'OTHER')}
+                    onChange={(e) => {
+                      const val = e.target.value === 'OTHER' ? ' ' : e.target.value;
+                      handleInputChange({ target: { name: 'clinicalSummary.syndrome', value: val } } as any);
+                    }}
+                    className="w-full px-4 py-3 bg-white border-2 border-violet-500/30 rounded-xl outline-none font-black text-lg text-violet-800 appearance-none"
+                  >
+                    <option value="">选择癫痫综合征分类...</option>
+                    {SYNDROME_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    <option value="OTHER">其他...</option>
+                  </select>
+                </div>
+                {(!SYNDROME_OPTIONS.includes(formData.clinicalSummary?.syndrome || '') && formData.clinicalSummary?.syndrome !== '') && (
+                  <input 
+                    name="clinicalSummary.syndrome" 
+                    value={formData.clinicalSummary?.syndrome === ' ' ? '' : formData.clinicalSummary?.syndrome} 
+                    onChange={handleInputChange} 
+                    className="flex-1 min-w-[200px] px-4 py-3 bg-violet-50 border-2 border-violet-300 rounded-xl outline-none font-black text-lg text-violet-800" 
+                    placeholder="手动输入综合征分类" 
+                  />
+                )}
+                
+                <input name="clinicalSummary.etiology" value={formData.clinicalSummary?.etiology || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-fuchsia-400/30 rounded-xl outline-none font-black text-lg text-fuchsia-800" placeholder="病因诊断" />
+                <input name="clinicalSummary.comorbidity" value={formData.clinicalSummary?.comorbidity || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-emerald-400/30 rounded-xl outline-none font-black text-lg text-emerald-800" placeholder="共患病诊断" />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="space-y-2">
+                <label className="text-base font-black text-violet-500 uppercase tracking-widest">脑电图 (EEG) 描述</label>
+                <textarea name="clinicalSummary.eeg" value={formData.clinicalSummary?.eeg} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="记录背景波、棘波、尖波等异常情况..." />
+              </div>
+              <div className="space-y-2">
+                <label className="text-base font-black text-sky-600 uppercase tracking-widest">头颅影像 (MRI/CT) 结果</label>
+                <textarea name="clinicalSummary.mri" value={formData.clinicalSummary?.mri} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="记录结构性改变、软化灶等..." />
+              </div>
+              <div className="space-y-2">
+                <label className="text-base font-black text-fuchsia-600 uppercase tracking-widest">基因检测报告</label>
+                <textarea name="clinicalSummary.genetic" value={formData.clinicalSummary?.genetic} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="致病性变异、VUS 等详细记录..." />
+              </div>
+              <div className="space-y-2">
+                <label className="text-base font-black text-emerald-600 uppercase tracking-widest">生化检查与实验室指标</label>
+                <textarea name="clinicalSummary.biochemical" value={formData.clinicalSummary?.biochemical} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="血常规、肝肾功能、血药浓度测定结果..." />
+              </div>
+            </div>
+          </div>
+        </section>
+        </div>
+
+        <div className="space-y-12">
+        <section>
+          <div className="flex items-center gap-2 mb-6 ml-1">
              <div className="w-2 h-8 bg-fuchsia-500 rounded-full"></div>
              <h3 className="text-2xl font-bold">{isNewVisit ? '本次就诊用药方案' : '药物管理 (ASM)'}</h3>
           </div>
@@ -280,92 +366,6 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
             <button type="button" onClick={() => setFormData(p => ({ ...p, medications: [...(p.medications || []), { name: '', usage: '', dosage: '', startDate: new Date().toISOString().split('T')[0], endDate: '' }] }))} className="w-full py-5 bg-violet-50 text-violet-600 font-black rounded-2xl hover:bg-violet-100 transition-all text-lg border-2 border-dashed border-violet-200">
               + 添加新的药物方案记录
             </button>
-          </div>
-        </section>
-        </div>
-
-        <div className="space-y-12">
-        <section>
-          <div className="flex items-center gap-2 mb-6 ml-1">
-             <div className="w-2 h-8 bg-sky-400 rounded-full"></div>
-             <h3 className="text-2xl font-bold">{isNewVisit ? '本次就诊临床评估资料' : '临床资料'}</h3>
-          </div>
-          <div className="glass-dark p-8 rounded-[2.5rem] border-0 space-y-8">
-            <div className="space-y-4 bg-white/40 p-6 rounded-3xl border border-white/50">
-              <label className="text-base font-black text-gray-500 uppercase tracking-widest">临床诊断</label>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex-1 min-w-[200px] relative">
-                  <select 
-                    value={SEIZURE_TYPES.includes(formData.clinicalSummary?.seizureType || '') ? formData.clinicalSummary?.seizureType : (formData.clinicalSummary?.seizureType === '' ? '' : 'OTHER')}
-                    onChange={(e) => {
-                      const val = e.target.value === 'OTHER' ? ' ' : e.target.value;
-                      handleInputChange({ target: { name: 'clinicalSummary.seizureType', value: val } } as any);
-                    }}
-                    className="w-full px-4 py-3 bg-white border-2 border-sky-400/30 rounded-xl outline-none font-black text-lg text-sky-800 appearance-none"
-                  >
-                    <option value="">选择发作形式...</option>
-                    {SEIZURE_TYPES.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    <option value="OTHER">其他...</option>
-                  </select>
-                </div>
-                {(!SEIZURE_TYPES.includes(formData.clinicalSummary?.seizureType || '') && formData.clinicalSummary?.seizureType !== '') && (
-                  <input 
-                    name="clinicalSummary.seizureType" 
-                    value={formData.clinicalSummary?.seizureType === ' ' ? '' : formData.clinicalSummary?.seizureType} 
-                    onChange={handleInputChange} 
-                    className="flex-1 min-w-[150px] px-4 py-3 bg-sky-50 border-2 border-sky-300 rounded-xl outline-none font-black text-lg text-sky-800" 
-                    placeholder="手动输入发作形式" 
-                  />
-                )}
-                <span className="text-xl font-black text-gray-800">癫痫</span>
-                
-                <div className="flex-1 min-w-[200px] relative">
-                  <select 
-                    value={SYNDROME_OPTIONS.includes(formData.clinicalSummary?.syndrome || '') ? formData.clinicalSummary?.syndrome : (formData.clinicalSummary?.syndrome === '' ? '' : 'OTHER')}
-                    onChange={(e) => {
-                      const val = e.target.value === 'OTHER' ? ' ' : e.target.value;
-                      handleInputChange({ target: { name: 'clinicalSummary.syndrome', value: val } } as any);
-                    }}
-                    className="w-full px-4 py-3 bg-white border-2 border-violet-500/30 rounded-xl outline-none font-black text-lg text-violet-800 appearance-none"
-                  >
-                    <option value="">选择癫痫综合征分类...</option>
-                    {SYNDROME_OPTIONS.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    <option value="OTHER">其他...</option>
-                  </select>
-                </div>
-                {(!SYNDROME_OPTIONS.includes(formData.clinicalSummary?.syndrome || '') && formData.clinicalSummary?.syndrome !== '') && (
-                  <input 
-                    name="clinicalSummary.syndrome" 
-                    value={formData.clinicalSummary?.syndrome === ' ' ? '' : formData.clinicalSummary?.syndrome} 
-                    onChange={handleInputChange} 
-                    className="flex-1 min-w-[200px] px-4 py-3 bg-violet-50 border-2 border-violet-300 rounded-xl outline-none font-black text-lg text-violet-800" 
-                    placeholder="手动输入综合征分类" 
-                  />
-                )}
-                
-                <input name="clinicalSummary.etiology" value={formData.clinicalSummary?.etiology || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-fuchsia-400/30 rounded-xl outline-none font-black text-lg text-fuchsia-800" placeholder="病因诊断" />
-                <input name="clinicalSummary.comorbidity" value={formData.clinicalSummary?.comorbidity || ''} onChange={handleInputChange} className="flex-1 min-w-[150px] px-4 py-3 bg-white border-2 border-emerald-400/30 rounded-xl outline-none font-black text-lg text-emerald-800" placeholder="共患病诊断" />
-              </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="space-y-2">
-                <label className="text-base font-black text-violet-500 uppercase tracking-widest">脑电图 (EEG) 描述</label>
-                <textarea name="clinicalSummary.eeg" value={formData.clinicalSummary?.eeg} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="记录背景波、棘波、尖波等异常情况..." />
-              </div>
-              <div className="space-y-2">
-                <label className="text-base font-black text-sky-600 uppercase tracking-widest">头颅影像 (MRI/CT) 结果</label>
-                <textarea name="clinicalSummary.mri" value={formData.clinicalSummary?.mri} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="记录结构性改变、软化灶等..." />
-              </div>
-              <div className="space-y-2">
-                <label className="text-base font-black text-fuchsia-600 uppercase tracking-widest">基因检测报告</label>
-                <textarea name="clinicalSummary.genetic" value={formData.clinicalSummary?.genetic} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="致病性变异、VUS 等详细记录..." />
-              </div>
-              <div className="space-y-2">
-                <label className="text-base font-black text-emerald-600 uppercase tracking-widest">生化检查与实验室指标</label>
-                <textarea name="clinicalSummary.biochemical" value={formData.clinicalSummary?.biochemical} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="血常规、肝肾功能、血药浓度测定结果..." />
-              </div>
-            </div>
           </div>
         </section>
 
