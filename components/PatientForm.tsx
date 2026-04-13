@@ -146,13 +146,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
         </div>
       </div>
 
-      <div className="p-8 space-y-12 overflow-y-auto flex-1">
-        <section>
+      <div className="p-8 overflow-y-auto flex-1">
+        <div className="grid grid-cols-1 2xl:grid-cols-2 gap-12">
+          <div className="space-y-12">
+            <section>
           <div className="flex items-center gap-2 mb-6 ml-1">
              <div className="w-2 h-8 bg-violet-500 rounded-full"></div>
              <h3 className="text-2xl font-bold">患儿基本信息 {isNewVisit && '(只读参考)'}</h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 bg-white/40 p-8 rounded-[2rem] border border-white/50 shadow-inner">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 bg-white/40 p-8 rounded-[2rem] border border-white/50 shadow-inner">
             <div className="space-y-2">
               <label className="text-base font-black text-gray-400 uppercase tracking-widest px-1">患儿姓名</label>
               <input name="name" value={formData.name} onChange={handleInputChange} disabled={isNewVisit} className={`w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 focus:ring-4 focus:ring-violet-500/20 outline-none transition-all font-semibold text-lg ${isNewVisit ? 'opacity-50' : ''}`} required />
@@ -280,7 +282,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
             </button>
           </div>
         </section>
+        </div>
 
+        <div className="space-y-12">
         <section>
           <div className="flex items-center gap-2 mb-6 ml-1">
              <div className="w-2 h-8 bg-sky-400 rounded-full"></div>
@@ -344,7 +348,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
               </div>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="space-y-2">
                 <label className="text-base font-black text-violet-500 uppercase tracking-widest">脑电图 (EEG) 描述</label>
                 <textarea name="clinicalSummary.eeg" value={formData.clinicalSummary?.eeg} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="记录背景波、棘波、尖波等异常情况..." />
@@ -357,10 +361,10 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
                 <label className="text-base font-black text-fuchsia-600 uppercase tracking-widest">基因检测报告</label>
                 <textarea name="clinicalSummary.genetic" value={formData.clinicalSummary?.genetic} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="致病性变异、VUS 等详细记录..." />
               </div>
-            </div>
-            <div className="space-y-2">
-              <label className="text-base font-black text-emerald-600 uppercase tracking-widest">生化检查与实验室指标</label>
-              <textarea name="clinicalSummary.biochemical" value={formData.clinicalSummary?.biochemical} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="血常规、肝肾功能、血药浓度测定结果..." />
+              <div className="space-y-2">
+                <label className="text-base font-black text-emerald-600 uppercase tracking-widest">生化检查与实验室指标</label>
+                <textarea name="clinicalSummary.biochemical" value={formData.clinicalSummary?.biochemical} onChange={handleInputChange} className="w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 outline-none text-lg min-h-[100px]" placeholder="血常规、肝肾功能、血药浓度测定结果..." />
+              </div>
             </div>
           </div>
         </section>
@@ -369,7 +373,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div className="space-y-4">
                  <h3 className="text-2xl font-bold mb-4">复诊计划与检查预约</h3>
-                 <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
+                 <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
                    {FOLLOW_UP_ITEMS.map(item => (
                      <div key={item} onClick={() => toggleItem(item)} className={`p-4 rounded-2xl border-2 transition-all cursor-pointer flex items-center justify-center text-center text-base font-black uppercase tracking-widest ${formData.followUpConfig?.items.includes(item) ? 'bg-violet-600 border-violet-600 text-white shadow-lg' : 'bg-white border-black/5 text-gray-500 hover:border-violet-300'}`}>
                        {item}
@@ -395,6 +399,8 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
               </div>
            </div>
         </section>
+        </div>
+        </div>
       </div>
       <div className="p-8 pt-4 border-t border-white/30 shrink-0 bg-white/30 backdrop-blur-md">
         <button type="submit" className={`w-full py-5 rounded-3xl font-black text-white shadow-2xl transition-all text-xl active:scale-95 ${showConfirm ? 'bg-emerald-500 hover:bg-emerald-600 animate-pulse' : 'bg-violet-600 hover:bg-violet-700'}`}>
