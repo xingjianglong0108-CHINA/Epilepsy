@@ -16,6 +16,7 @@ const PatientList: React.FC<PatientListProps> = ({ patients, onSelect, onNewVisi
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [showInsights, setShowInsights] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const filteredPatients = useMemo(() => {
     return patients.filter(p => {
@@ -43,6 +44,24 @@ const PatientList: React.FC<PatientListProps> = ({ patients, onSelect, onNewVisi
     return { total, genderCount, ageGroups, topMeds };
   }, [filteredPatients]);
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredPatients.length && filteredPatients.length > 0) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredPatients.map(p => p.id));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedIds.length === 0) return;
+    onDeleteMultiple(selectedIds);
+    setSelectedIds([]);
+  };
+
   return (
     <div className="space-y-10 animate-fade-in pb-24">
       <div className="glass rounded-[3rem] p-10 shadow-2xl border-white/40 space-y-10">
@@ -57,9 +76,17 @@ const PatientList: React.FC<PatientListProps> = ({ patients, onSelect, onNewVisi
             </div>
           </div>
 
-          <div className="flex items-center bg-black/5 p-2 rounded-2xl border border-white/50">
-             <button onClick={() => setShowInsights(false)} className={`px-8 py-3 rounded-xl text-lg font-bold transition-all ${!showInsights ? 'bg-white text-violet-600 shadow-lg' : 'text-gray-500 hover:text-gray-900'}`}>病历列表</button>
-             <button onClick={() => setShowInsights(true)} className={`px-8 py-3 rounded-xl text-lg font-bold transition-all ${showInsights ? 'bg-white text-violet-600 shadow-lg' : 'text-gray-500 hover:text-gray-900'}`}>统计报表</button>
+          <div className="flex items-center gap-4">
+            {selectedIds.length > 0 && !showInsights && (
+              <button onClick={handleDeleteSelected} className="px-6 py-3 bg-red-100 text-red-600 rounded-xl font-bold hover:bg-red-600 hover:text-white transition-all shadow-sm flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                批量删除 ({selectedIds.length})
+              </button>
+            )}
+            <div className="flex items-center bg-black/5 p-2 rounded-2xl border border-white/50">
+               <button onClick={() => setShowInsights(false)} className={`px-8 py-3 rounded-xl text-lg font-bold transition-all ${!showInsights ? 'bg-white text-violet-600 shadow-lg' : 'text-gray-500 hover:text-gray-900'}`}>病历列表</button>
+               <button onClick={() => setShowInsights(true)} className={`px-8 py-3 rounded-xl text-lg font-bold transition-all ${showInsights ? 'bg-white text-violet-600 shadow-lg' : 'text-gray-500 hover:text-gray-900'}`}>统计报表</button>
+            </div>
           </div>
         </div>
 
@@ -123,6 +150,9 @@ const PatientList: React.FC<PatientListProps> = ({ patients, onSelect, onNewVisi
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-white/60 border-b border-white/30 text-base font-black text-gray-500 uppercase tracking-widest">
+                  <th className="px-8 py-8 w-16 text-center">
+                    <input type="checkbox" checked={filteredPatients.length > 0 && selectedIds.length === filteredPatients.length} onChange={toggleSelectAll} className="w-6 h-6 rounded-md border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer accent-violet-600" />
+                  </th>
                   <th className="px-8 py-8">患儿基础信息</th>
                   <th className="px-8 py-8">诊断</th>
                   <th className="px-8 py-8">治疗方案</th>
@@ -132,9 +162,12 @@ const PatientList: React.FC<PatientListProps> = ({ patients, onSelect, onNewVisi
               <tbody className="divide-y divide-white/20">
                 {filteredPatients.map((p) => (
                   <tr key={p.id} className="hover:bg-white/60 transition-colors group">
+                    <td className="px-8 py-8 text-center" onClick={(e) => e.stopPropagation()}>
+                      <input type="checkbox" checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} className="w-6 h-6 rounded-md border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer accent-violet-600" />
+                    </td>
                     <td className="px-8 py-8 cursor-pointer" onClick={() => onSelect(p)}>
                       <div className="font-black text-gray-900 text-xl">{p.name}</div>
-                      <div className="text-base text-gray-500 font-bold">{p.gender} · {p.age}岁{p.ageMonth !== undefined ? ` ${p.ageMonth}个月` : ''}</div>
+                      <div className="text-base text-gray-500 font-bold">{p.gender} · {p.age}岁{p.ageMonth !== undefined ? ` ${p.ageMonth}个月` : ''} · {p.patientNo || p.idCard || '无编号'}</div>
                       <div className="mt-2 text-base text-violet-600 font-black flex items-center gap-2">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                         查看就诊史 ({p.visitHistory.length} 次记录)

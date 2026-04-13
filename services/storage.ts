@@ -37,13 +37,13 @@ export const storage = {
   // 批量合并导入
   importPatients: (newPatients: Patient[]): number => {
     const existing = storage.getPatients();
-    const existingIds = new Set(existing.map(p => p.idCard || p.id));
+    const existingIds = new Set(existing.map(p => p.patientNo || p.idCard || p.id));
     
     let addedCount = 0;
     const merged = [...existing];
     
     newPatients.forEach(np => {
-      const identifier = np.idCard || np.id;
+      const identifier = np.patientNo || np.idCard || np.id;
       if (!existingIds.has(identifier)) {
         merged.push(np);
         addedCount++;

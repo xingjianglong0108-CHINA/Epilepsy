@@ -42,7 +42,7 @@ const AssessmentTool: React.FC<AssessmentToolProps> = ({ patients, onSaved }) =>
              <label className="text-base font-black text-gray-400 uppercase tracking-widest ml-2">测评对象 (从档案库选取)</label>
              <select value={selectedPatientId} onChange={(e) => setSelectedPatientId(e.target.value)} className="w-full px-10 py-6 bg-white/80 border-0 ring-1 ring-black/5 rounded-[2rem] font-black text-2xl text-gray-900 outline-none focus:ring-4 focus:ring-violet-500/20 shadow-inner">
                <option value="">点击此处从档案库选择患儿进行测评...</option>
-               {patients.map(p => ( <option key={p.id} value={p.id}>{p.name} · {p.age}岁 · {p.diagnosis}</option> ))}
+               {patients.map(p => ( <option key={p.id} value={p.id}>{p.name} · {p.age}岁 · {p.patientNo || p.idCard || '无编号'} · {p.diagnosis}</option> ))}
              </select>
           </div>
 

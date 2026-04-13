@@ -21,6 +21,7 @@ interface PatientFormProps {
 
 const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = false, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState<Partial<Patient>>({
+    patientNo: `PT${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
     name: '', gender: Gender.MALE, birthday: '', age: 0, allergies: '', familyHistory: '', medicalHistory: '', idCard: '', phone: '',
     clinicalSummary: { syndrome: '', seizureType: '', eeg: '', mri: '', genetic: '', biochemical: '', other: '' },
     diagnosis: '', diagnosisDate: new Date().toISOString().split('T')[0],
@@ -34,11 +35,19 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
 
   useEffect(() => { 
     if (initialData) {
-      setFormData(initialData);
+      const dataToSet = { ...initialData };
+      if (isNewVisit) {
+        const today = new Date().toISOString().split('T')[0];
+        dataToSet.followUpConfig = {
+          ...dataToSet.followUpConfig,
+          lastFollowUpDate: today
+        };
+      }
+      setFormData(dataToSet);
       const customItem = initialData.followUpConfig.items.find(item => !FOLLOW_UP_ITEMS.includes(item));
       if (customItem) setOtherFollowUpText(customItem);
     } 
-  }, [initialData]);
+  }, [initialData, isNewVisit]);
 
   useEffect(() => {
     if (formData.birthday) {
@@ -155,6 +164,10 @@ const PatientForm: React.FC<PatientFormProps> = ({ initialData, isNewVisit = fal
              <h3 className="text-2xl font-bold">患儿基本信息 {isNewVisit && '(只读参考)'}</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6 bg-white/40 p-8 rounded-[2rem] border border-white/50 shadow-inner">
+            <div className="space-y-2">
+              <label className="text-base font-black text-gray-400 uppercase tracking-widest px-1">病历号/编号</label>
+              <input name="patientNo" value={formData.patientNo || ''} onChange={handleInputChange} disabled={isNewVisit} className={`w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 focus:ring-4 focus:ring-violet-500/20 outline-none transition-all font-semibold text-lg ${isNewVisit ? 'opacity-50' : ''}`} placeholder="自动生成或输入" required />
+            </div>
             <div className="space-y-2">
               <label className="text-base font-black text-gray-400 uppercase tracking-widest px-1">患儿姓名</label>
               <input name="name" value={formData.name} onChange={handleInputChange} disabled={isNewVisit} className={`w-full px-5 py-4 bg-white rounded-2xl border-0 ring-1 ring-black/5 focus:ring-4 focus:ring-violet-500/20 outline-none transition-all font-semibold text-lg ${isNewVisit ? 'opacity-50' : ''}`} required />

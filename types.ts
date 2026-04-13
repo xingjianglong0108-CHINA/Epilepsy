@@ -51,6 +51,7 @@ export interface VisitRecord {
 
 export interface Patient {
   id: string;
+  patientNo?: string; // 病历号
   name: string;
   gender: Gender;
   birthday: string; 
@@ -73,8 +74,10 @@ export interface Patient {
 
 export interface FollowUpReminder {
   patientId: string;
+  patientNo?: string;
   patientName: string;
   daysRemaining: number;
   isOverdue: boolean;
   dueDate: string;
+  isCompletedToday?: boolean;
 }

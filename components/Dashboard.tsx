@@ -14,20 +14,39 @@ const Dashboard: React.FC<DashboardProps> = ({ patients, onSelectPatient, onAddC
 
   const getReminders = (): FollowUpReminder[] => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     return patients
       .map(p => {
         const nextDate = new Date(p.followUpConfig.nextFollowUpDate);
+        nextDate.setHours(0, 0, 0, 0);
         const diffTime = nextDate.getTime() - today.getTime();
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        // 如果最后随访日期是今天，说明今天刚完成随访，自动从待办中移除
+        // 并且必须有当天的就诊记录
+        const lastDate = new Date(p.followUpConfig.lastFollowUpDate);
+        lastDate.setHours(0, 0, 0, 0);
+        
+        const hasVisitToday = p.visitHistory && p.visitHistory.some(visit => {
+          const visitDate = new Date(visit.date);
+          visitDate.setHours(0, 0, 0, 0);
+          return visitDate.getTime() === today.getTime();
+        });
+
+        const isCompletedToday = lastDate.getTime() === today.getTime() && hasVisitToday;
+
         return {
           patientId: p.id,
+          patientNo: p.patientNo,
           patientName: p.name,
           daysRemaining: diffDays,
           isOverdue: diffDays < 0,
-          dueDate: p.followUpConfig.nextFollowUpDate
+          dueDate: p.followUpConfig.nextFollowUpDate,
+          isCompletedToday
         };
       })
-      .filter(r => r.daysRemaining <= 14) 
+      .filter(r => r.daysRemaining <= 14 && !r.isCompletedToday) 
       .sort((a, b) => a.daysRemaining - b.daysRemaining);
   };
 
@@ -35,9 +54,9 @@ const Dashboard: React.FC<DashboardProps> = ({ patients, onSelectPatient, onAddC
 
   const exportToCSV = () => {
     if (patients.length === 0) return alert('暂无数据可导出');
-    const headers = ['姓名', '性别', '出生日期', '年龄', '过敏史', '家族史', '联系电话', '身份证号', '当前诊断', '当前用药'];
+    const headers = ['病历号', '姓名', '性别', '出生日期', '年龄', '过敏史', '家族史', '联系电话', '身份证号', '当前诊断', '当前用药'];
     const rows = patients.map(p => [
-      p.name, p.gender, p.birthday, p.age, p.allergies, p.familyHistory, p.phone, `'${p.idCard}`, p.diagnosis,
+      p.patientNo, p.name, p.gender, p.birthday, p.age, p.allergies, p.familyHistory, p.phone, `'${p.idCard}`, p.diagnosis,
       p.medications.map(m => `${m.name}(${m.usage} ${m.dosage})`).join('; ')
     ]);
     const csvContent = [headers.join(','), ...rows.map(r => r.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
@@ -107,7 +126,7 @@ const Dashboard: React.FC<DashboardProps> = ({ patients, onSelectPatient, onAddC
                       {reminder.patientName[0]}
                     </div>
                     <div>
-                      <h4 className="font-black text-gray-900 text-xl">{reminder.patientName}</h4>
+                      <h4 className="font-black text-gray-900 text-xl">{reminder.patientName} <span className="text-sm text-gray-400 ml-2">{reminder.patientNo}</span></h4>
                       <p className="text-base text-gray-500 font-bold">预约随访日期: {reminder.dueDate}</p>
                     </div>
                   </div>
